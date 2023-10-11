@@ -34,9 +34,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="blockItem"></param>
         /// <returns></returns>
         [HttpPost]
-        public ApiResponse Add([FromForm] BlockItemDto blockItem)
+        public async Task<ApiResponse<BlockItemDto>> Add([FromForm] BlockItemDto blockItem)
         {
-            return blockItemService.AddAsync(blockItem).Result;
+            return await blockItemService.AddAsync(blockItem);
         }
         /// <summary>
         /// 删除
@@ -44,9 +44,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public ApiResponse Delete(int id)
+        public async Task<ApiResponse> Delete(int id)
         {
-            return blockItemService.DeleteAsync(id).Result;
+            return await blockItemService.DeleteAsync(id);
         }
         /// <summary>
         /// 获取所有
@@ -54,9 +54,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="query"></param>
         /// <returns></returns>
         [HttpGet]
-        public ApiResponse GetAll([FromQuery] QueryParameter query)
+        public async Task<ApiResponse<PageList<BlockItemDto>>> GetAll([FromQuery] QueryParameter query)
         {
-            return blockItemService.GetAllAsync(query).Result;
+            return await blockItemService.GetAllAsync(query);
         }
         /// <summary>
         /// 获取单个
@@ -64,10 +64,10 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ApiResponse GetSingle(int id)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Policy = "adminPolicy")]
+        public async Task<ApiResponse<BlockItemDto>> GetSingle(int id)
         {
-            return blockItemService.GetSingleAsync(id).Result;
+            return await blockItemService.GetSingleAsync(id);
         }
         /// <summary>
         /// 修改
@@ -75,9 +75,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="blockItem"></param>
         /// <returns></returns>
         [HttpPut]
-        public ApiResponse Update(BlockItemDto blockItem)
+        public async Task<ApiResponse<BlockItemDto>> Update(BlockItemDto blockItem)
         {
-            return blockItemService.UpdateAsync(blockItem).Result;
+            return await blockItemService.UpdateAsync(blockItem);
         }
     }
 }

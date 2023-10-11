@@ -29,9 +29,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="mode"></param>
         /// <returns></returns>
         [HttpPost]
-        public ApiResponse Add([FromForm] MenuItemDto mode)
+        public async Task<ApiResponse<MenuItemDto>> Add([FromForm] MenuItemDto mode)
         {
-            return iService.AddAsync(mode).Result;
+            return await iService.AddAsync(mode);
         }
         /// <summary>
         /// 删除
@@ -49,9 +49,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="query"></param>
         /// <returns></returns>
         [HttpGet]
-        public ApiResponse GetAll([FromQuery] QueryParameter query)
+        public async Task<ApiResponse<PageList<MenuItemDto>>> GetAll([FromQuery] QueryParameter query)
         {
-            return iService.GetAllAsync(query).Result;
+            return await  iService.GetAllAsync(query);
         }
         /// <summary>
         /// 获取单个
@@ -59,9 +59,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        public ApiResponse GetSingle(int id)
+        public async Task<ApiResponse<MenuItemDto>> GetSingle(int id)
         {
-            return iService.GetSingleAsync(id).Result;
+            return await iService.GetSingleAsync(id);
         }
         /// <summary>
         /// 修改
@@ -69,9 +69,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="mode"></param>
         /// <returns></returns>
         [HttpPut]
-        public ApiResponse Update(MenuItemDto mode)
+        public async Task<ApiResponse<MenuItemDto>> Update(MenuItemDto mode)
         {
-            return iService.UpdateAsync(mode).Result;
+            return await iService.UpdateAsync(mode);
         }
     }
 }

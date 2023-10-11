@@ -29,9 +29,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="mode"></param>
         /// <returns></returns>
         [HttpPost]
-        public ApiResponse Add([FromForm] MemoDto mode)
+        public async Task<ApiResponse<MemoDto>> Add([FromForm] MemoDto mode)
         {
-            return iService.AddAsync(mode).Result;
+            return await iService.AddAsync(mode);
         }
         /// <summary>
         /// 删除
@@ -39,9 +39,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public ApiResponse Delete(int id)
+        public async Task<ApiResponse> Delete(int id)
         {
-            return iService.DeleteAsync(id).Result;
+            return await iService.DeleteAsync(id);
         }
         /// <summary>
         /// 获取所有
@@ -49,9 +49,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="query"></param>
         /// <returns></returns>
         [HttpGet]
-        public ApiResponse GetAll([FromQuery] QueryParameter query)
+        public async Task<ApiResponse<PageList<MemoDto>>> GetAll([FromQuery] QueryParameter query)
         {
-            return iService.GetAllAsync(query).Result;
+            return await iService.GetAllAsync(query);
         }
         /// <summary>
         /// 获取单个
@@ -59,9 +59,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        public ApiResponse GetSingle(int id)
+        public async Task<ApiResponse<MemoDto>> GetSingle(int id)
         {
-            return iService.GetSingleAsync(id).Result;
+            return await iService.GetSingleAsync(id);
         }
         /// <summary>
         /// 修改
@@ -69,9 +69,9 @@ namespace MyToDo.Api.Controllers
         /// <param name="mode"></param>
         /// <returns></returns>
         [HttpPut]
-        public ApiResponse Update(MemoDto mode)
+        public async Task<ApiResponse<MemoDto>> Update(MemoDto mode)
         {
-            return iService.UpdateAsync(mode).Result;
+            return await iService.UpdateAsync(mode);
         }
     }
 }

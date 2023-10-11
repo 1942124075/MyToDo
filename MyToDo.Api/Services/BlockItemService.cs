@@ -7,11 +7,18 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MyToDo.Api.Services
 {
+    /// <summary>
+    /// 块服务
+    /// </summary>
     public class BlockItemService : IBlockItemService
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unitOfWork"></param>
+        /// <param name="mapper"></param>
         public BlockItemService(IUnitOfWork unitOfWork,IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
@@ -22,27 +29,27 @@ namespace MyToDo.Api.Services
         /// </summary>
         /// <param name="modeDto"></param>
         /// <returns></returns>
-        public async Task<ApiResponse> AddAsync(BlockItemDto modeDto)
+        public async Task<ApiResponse<BlockItemDto>> AddAsync(BlockItemDto modeDto)
         {
             if (modeDto == null)
-                return new ApiResponse("添加失败！");
+                return new ApiResponse<BlockItemDto>("添加失败！");
             try
             {
                 var mode = mapper.Map<BlockItem>(modeDto);
                 await unitOfWork.GetRepository<BlockItem>().InsertAsync(mode);
                 if (await unitOfWork.SaveChangesAsync() > 0)
                 {
-                    return new ApiResponse(true, mode, "添加成功！");
+                    return new ApiResponse<BlockItemDto>(true, mapper.Map<BlockItemDto>(mode), "添加成功！");
                 }
                 else
                 {
-                    return new ApiResponse("添加失败！");
+                    return new ApiResponse<BlockItemDto>("添加失败！");
                 }
                 
             }
             catch (Exception ex)
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse<BlockItemDto>(ex.Message);
             }
         }
         /// <summary>
@@ -78,65 +85,72 @@ namespace MyToDo.Api.Services
         /// 获取所有
         /// </summary>
         /// <returns></returns>
-        public async Task<ApiResponse> GetAllAsync(QueryParameter query)
+        public async Task<ApiResponse<PageList<BlockItemDto>>> GetAllAsync(QueryParameter query)
         {
             try
             {
                 var repository = unitOfWork.GetRepository<BlockItem>();
                 var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex, pageSize: query.PageSize,
                     predicate: e => string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Equals(query.Search));
+                PageList<BlockItemDto> pageList = new PageList<BlockItemDto>();
+                pageList.PageIndex = query.PageIndex;
+                pageList.PageSize = query.PageSize;
+                foreach ( var item in results.Items)
+                {
+                    pageList.Lists.Add(mapper.Map<BlockItemDto>(item));
+                }
                 if (results != null)
                 {
-                    return new ApiResponse(true, results, "获取成功！");
+                    return new ApiResponse<PageList<BlockItemDto>>(true, pageList, "获取成功！");
                 }
                 else
                 {
-                    return new ApiResponse("获取失败！");
+                    return new ApiResponse<PageList<BlockItemDto>>("获取失败！");
                 }
 
             }
             catch (Exception ex)
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse<PageList<BlockItemDto>>(ex.Message);
             }
         }
         /// <summary>
         /// 获取单个
         /// </summary>
-        /// <param name="blockItem"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<ApiResponse> GetSingleAsync(int id)
+        public async Task<ApiResponse<BlockItemDto>> GetSingleAsync(int id)
         {
             if (id < 0)
-                return new ApiResponse("获取失败！");
+                return new ApiResponse<BlockItemDto>("获取失败！");
             try
             {
                 var repository = unitOfWork.GetRepository<BlockItem>();
                 var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
                 if (result != null)
                 {
-                    return new ApiResponse(true, result, "获取成功！");
+                    return new ApiResponse<BlockItemDto>(true, mapper.Map<BlockItemDto>(result), "获取成功！");
                 }
                 else
                 {
-                    return new ApiResponse("获取失败！");
+                    return new ApiResponse<BlockItemDto>("获取失败！");
                 }
 
             }
             catch (Exception ex)
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse<BlockItemDto>(ex.Message);
             }
         }
         /// <summary>
         /// 更新
         /// </summary>
-        /// <param name="blockItem"></param>
+        /// <param name="modeDto"></param>
         /// <returns></returns>
-        public async Task<ApiResponse> UpdateAsync(BlockItemDto modeDto)
+        public async Task<ApiResponse<BlockItemDto>> UpdateAsync(BlockItemDto modeDto)
         {
             if (modeDto == null)
-                return new ApiResponse("修改失败！");
+                return new ApiResponse<BlockItemDto>("修改失败！");
             try
             {
                 var mode = mapper.Map<BlockItem>(modeDto);
@@ -149,17 +163,17 @@ namespace MyToDo.Api.Services
                 repository.Update(result);
                 if (await unitOfWork.SaveChangesAsync() > 0)
                 {
-                    return new ApiResponse(true, result, "修改成功！");
+                    return new ApiResponse<BlockItemDto>(true, mapper.Map<BlockItemDto>(result), "修改成功！");
                 }
                 else
                 {
-                    return new ApiResponse("修改失败！");
+                    return new ApiResponse<BlockItemDto>("修改失败！");
                 }
 
             }
             catch (Exception ex)
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse<BlockItemDto>    (ex.Message);
             }
         }
     }

@@ -14,7 +14,10 @@ namespace MyToDo.Api.Controllers
     public class FileController : ControllerBase
     {
         private readonly ILogger<FileController> logger;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
         public FileController(ILogger<FileController> logger)
         {
             this.logger = logger;

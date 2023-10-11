@@ -1,5 +1,8 @@
 ﻿namespace MyToDo.Api.Utility.Swagger
 {
+    /// <summary>
+    /// API版本
+    /// </summary>
     public enum ApiVersion
     {
         /// <summary>

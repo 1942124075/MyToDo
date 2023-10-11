@@ -26,7 +26,9 @@
 
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.23" />
     <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
   </ItemGroup>
 
   <ItemGroup>

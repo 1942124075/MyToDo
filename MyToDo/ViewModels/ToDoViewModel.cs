@@ -1,4 +1,5 @@
 ﻿using MyToDo.Library.Modes;
+using MyToDo.Services.Interface;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -12,8 +13,9 @@ namespace MyToDo.ViewModels
 {
     public class ToDoViewModel : BindableBase
     {
-        public ToDoViewModel()
+        public ToDoViewModel(IToDoService service)
         {
+            this.service = service;
             ToDoDtos = new ObservableCollection<ToDoDto>();
             ShowAddToDo = new DelegateCommand(ShowAddToDoView);
             CreateContents();
@@ -27,6 +29,7 @@ namespace MyToDo.ViewModels
         public ObservableCollection<ToDoDto> ToDoDtos { get; set; }
         public DelegateCommand ShowAddToDo { get; set; }
         private bool isRightDrawerOpen;
+        private readonly IToDoService service;
 
         public bool IsRightDrawerOpen
         {
@@ -36,20 +39,22 @@ namespace MyToDo.ViewModels
 
 
 
-        void CreateContents()
+        async void CreateContents()
         {
-            for (int i = 0; i < 20; i++)
-            {
-                ToDoDtos.Add(new ToDoDto()
-                {
-                    Id = i + 1,
-                    CreateDate = DateTime.Now,
-                    ModifyDate = DateTime.Now,
-                    Status = 1,
-                    Content = "我是待办内容" + i,
-                    Title = "我是待办标题" + i
-                });
-            }
+            var results = await service.GetSingle(1);
+            ToDoDtos.Add(results.Result);
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    ToDoDtos.Add(new ToDoDto()
+            //    {
+            //        Id = i + 1,
+            //        CreateDate = DateTime.Now,
+            //        ModifyDate = DateTime.Now,
+            //        Status = 1,
+            //        Content = "我是待办内容" + i,
+            //        Title = "我是待办标题" + i
+            //    });
+            //}
         }
 
 

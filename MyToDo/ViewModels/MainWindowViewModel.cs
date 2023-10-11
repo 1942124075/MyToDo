@@ -1,12 +1,20 @@
-﻿using MyToDo.Library.Modes;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 using MyToDo.StaticInfo;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
@@ -27,14 +35,33 @@ namespace MyToDo.ViewModels
 
         private void Forward()
         {
-            if (journal.CanGoForward)
+            if (journal != null && journal.CanGoForward)
                 journal?.GoForward();
         }
 
-        private void Back()
+        private async void Back()
         {
-            if (journal.CanGoBack)
+            if (journal != null && journal.CanGoBack)
                 journal?.GoBack();
+            HttpClient httpClient = new HttpClient();
+            var tokenurl = "https://localhost:5001/api/User?userName=123&passWord=123";
+            HttpResponseMessage tokenResponse = await httpClient.GetAsync(tokenurl);
+            
+            var url = "http://localhost:5178/api/BlockItem/GetSingle?id=1";
+            string result = await tokenResponse.Content.ReadAsStringAsync();
+            ApiResponse apiResponse = JsonConvert.DeserializeObject<ApiResponse>(result);
+            if (apiResponse.Status)
+            {
+                string token = apiResponse.Result.ToString();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme,
+                    token);
+                HttpResponseMessage httpResponse = await httpClient.GetAsync(url);
+                string result2 = await httpResponse.Content.ReadAsStringAsync();
+                ApiResponse apiResponse2 = JsonConvert.DeserializeObject<ApiResponse>(result2);
+            }
+            
+
+
         }
 
         private void Navigate(MenuItemDto item)

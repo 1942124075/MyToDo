@@ -1,9 +1,11 @@
 using Arch.EntityFrameworkCore.UnitOfWork;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using MyToDo.Api.Services;
 using MyToDo.Api.Services.Interfaces;
+using MyToDo.Api.Utility.Policys;
 using MyToDo.Api.Utility.Swagger;
 using MyToDo.Library.Contexts;
 using MyToDo.Library.Contexts.Repositorys;
@@ -45,7 +47,9 @@ builder.Services.AddScoped<MyDbContext>()
     .AddScoped<IBlockItemService, BlockItemService>()
     .AddScoped<IMemoService, MemoService>()
     .AddScoped<IMenuItemService, MenuItemService>()
-    .AddScoped<IToDoService, ToDoService>();
+    .AddScoped<IToDoService, ToDoService>()
+    .AddScoped<IAuthorizationHandler, CustomAuthorizationHandler>()//策略验证
+    ;
 
 //配置仓储
 builder.Services.AddCustomRepository<ToDo,ToDoRepository>()
@@ -74,9 +78,15 @@ builder.Services.AddOptions().Configure<Config>(e => configurationRoot.GetSectio
 JWTTokenOptions tokenOptions = new JWTTokenOptions();
 builder.Configuration.Bind("Token", tokenOptions);
 
-
-builder.Services.AddAuthorization()
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//添加授权鉴权
+builder.Services.AddAuthorization(option =>
+{
+    option.AddPolicy("adminPolicy", policy =>
+    {
+        policy.AddRequirements(new CustomAuthorizationRequirement());
+    });
+})//添加授权
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)//添加鉴权
     .AddJwtBearer(option =>//配置鉴权逻辑
     {
         option.TokenValidationParameters = new TokenValidationParameters
