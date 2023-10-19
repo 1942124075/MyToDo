@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:MyToDo.Views"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -17,38 +18,27 @@
                         Margin="10,5"
                         FontSize="20"
                         FontWeight="Bold"
-                        Text="添加待办" />
-                    <StackPanel
-                        Height="40"
-                        Margin="10,5"
-                        Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" Text="状态：" />
-                        <ComboBox
-                            Width="80"
-                            VerticalAlignment="Center"
-                            materialDesign:HintAssist.Hint="OS"
-                            SelectedIndex="0">
-                            <ComboBoxItem Content="全部" />
-                            <ComboBoxItem Content="未完成" />
-                            <ComboBoxItem Content="已完成" />
-                        </ComboBox>
-                    </StackPanel>
+                        Text="{Binding MemoTitle}" />
                     <TextBox
                         Margin="10,5"
-                        materialDesign:HintAssist.Hint="请输入待办标题"
+                        materialDesign:HintAssist.Hint="请输入备忘录标题"
                         materialDesign:TextFieldAssist.HasClearButton="True"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding CurrentData.Title}" />
                     <TextBox
                         Height="200"
                         Margin="10,5"
-                        materialDesign:HintAssist.Hint="请输入待办内容"
+                        materialDesign:HintAssist.Hint="请输入备忘录内容"
                         materialDesign:TextFieldAssist.HasClearButton="True"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding CurrentData.Content}"
                         TextWrapping="Wrap" />
                     <Button
                         Width="200"
                         Margin="10,10"
-                        Content="完成" />
+                        Command="{Binding ExecuteCommand}"
+                        CommandParameter="Save"
+                        Content="{Binding MemoTitle}" />
                 </StackPanel>
             </materialDesign:DrawerHost.RightDrawerContent>
             <Grid>
@@ -63,27 +53,23 @@
                             VerticalAlignment="Top"
                             materialDesign:HintAssist.Hint="查找待办事项"
                             materialDesign:TextFieldAssist.HasClearButton="True"
-                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
-                        <TextBlock
-                            Margin="10,0"
-                            VerticalAlignment="Center"
-                            Text="筛选：" />
-                        <ComboBox
-                            Width="100"
-                            VerticalAlignment="Center"
-                            materialDesign:HintAssist.Hint="OS"
-                            SelectedIndex="0">
-                            <ComboBoxItem Content="全部" />
-                            <ComboBoxItem Content="未完成" />
-                            <ComboBoxItem Content="已完成" />
-                        </ComboBox>
+                            Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                            Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <KeyBinding
+                                    Key="Enter"
+                                    Command="{Binding ExecuteCommand}"
+                                    CommandParameter="Search" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                     </StackPanel>
                     <Button
                         Width="120"
                         Margin="20,10"
                         HorizontalAlignment="Right"
-                        Command="{Binding ShowAddToDo}"
-                        Content="添加待办"
+                        Command="{Binding ExecuteCommand}"
+                        CommandParameter="Add"
+                        Content="添加备忘录"
                         IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                         Style="{StaticResource MaterialDesignRaisedLightButton}"
                         ToolTip="Resource name: MaterialDesignRaisedLightButton" />
@@ -125,9 +111,14 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Grid.Style>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseLeftButtonUp">
+                                            <i:InvokeCommandAction Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                     <Border
                                         Grid.RowSpan="2"
-                                        Background="LightSlateGray"
+                                        Background="#1E90FF"
                                         CornerRadius="5" />
                                     <DockPanel Grid.Row="0">
                                         <TextBlock
@@ -141,7 +132,11 @@
                                             ToolTip="PopupBox, Style MaterialDesignMultiFloatingActionPopupBox"
                                             ToolTipService.Placement="Right">
                                             <StackPanel>
-                                                <Button Content="删除" ToolTip="One with custom opacity" />
+                                                <Button
+                                                    Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="删除"
+                                                    ToolTip="One with custom opacity" />
                                             </StackPanel>
                                         </materialDesign:PopupBox>
                                     </DockPanel>

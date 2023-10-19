@@ -6,7 +6,7 @@ using MyToDo.Library.Filters;
 
 namespace MyToDo.IdentityServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace MyToDo.IdentityServer.Controllers
         /// <param name="userName"></param>
         /// <param name="passWord"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         public async Task<ApiResponse> LoginAsync(string userName, string passWord)
         {
             return await userSerivce.LoginAsync(userName, passWord);
@@ -39,7 +39,7 @@ namespace MyToDo.IdentityServer.Controllers
         /// <param name="user"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ApiResponse> RegisterAsync(User user)
+        public async Task<ApiResponse> RegisterAsync([FromBody]User user)
         {
             return await userSerivce.RegisterAsync(user);
         }

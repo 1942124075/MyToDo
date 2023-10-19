@@ -15,6 +15,14 @@ namespace MyToDo.Library.Modes
         private string iconName;
         private string title;
         private string backColor;
+        private string menuNamespace;
+
+        public string MenuNamespace
+        {
+            get { return menuNamespace; }
+            set { menuNamespace = value; }
+        }
+
 
         public string BackColor
         {

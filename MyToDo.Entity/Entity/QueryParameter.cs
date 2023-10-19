@@ -24,5 +24,9 @@ namespace MyToDo.Library.Entity
         /// 查询条件
         /// </summary>
         public string? Search { get; set; }
+        /// <summary>
+        /// 状态条件
+        /// </summary>
+        public int? Status { get; set;}
     }
 }

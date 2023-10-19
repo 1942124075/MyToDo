@@ -1,4 +1,7 @@
-﻿using MyToDo.ViewModels;
+﻿using MyToDo.Common.Dialogs;
+using MyToDo.Common.Extensions;
+using MyToDo.ViewModels;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,14 +24,32 @@ namespace MyToDo.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly IDialogHostService dialogHostService;
+
+        public MainWindow(IEventAggregator aggregator,IDialogHostService dialogHostService)
         {
             InitializeComponent();
             SetWindowEvent();
-            menuBar.SelectionChanged += (s, e) =>
+            //注册等待窗口
+            aggregator.Subscribe(arg =>
+            {
+                dialogHost.IsOpen = arg.IsOpen;
+                if (arg.IsOpen)
+                {
+                    dialogHost.DialogContent = new ProgressView();
+                }
+            });
+            //注册全局消息推送
+            aggregator.RegisterMessage(arg =>
+            {
+                snackBar.MessageQueue?.Enqueue(arg.Message);
+            },"Main");
+
+            menuMainBar.SelectionChanged += (s, e) =>
             {
                 drawerHost.IsLeftDrawerOpen = false;
             };
+            this.dialogHostService = dialogHostService;
             //this.DataContext = new MainWindowViewModel();
         }
 
@@ -38,7 +59,14 @@ namespace MyToDo.Views
 
             btnMax.Click += (s, e) => { this.WindowState = this.WindowState != WindowState.Maximized ? WindowState.Maximized : WindowState.Normal; };
 
-            btnClose.Click += (s, e) => { this.Close(); };
+            btnClose.Click += async (s, e) => 
+            {
+                if (await dialogHostService.ShowMessageBox("温馨提示", "确定要关闭应用程序吗？") == Prism.Services.Dialogs.ButtonResult.OK)
+                {
+                    this.Close();
+                    return;
+                }
+            };
             mdZone.MouseMove += (s, e) =>
             {
                 if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)

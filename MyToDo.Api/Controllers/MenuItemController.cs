@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyToDo.Api.Services.Interfaces;
 using MyToDo.Api.Utility.Swagger;
 using MyToDo.Library.Entity;
@@ -12,6 +14,7 @@ namespace MyToDo.Api.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = false, GroupName = nameof(ApiVersion.V1))]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "adminPolicy")]
     public class MenuItemController : ControllerBase
     {
         private readonly IMenuItemService iService;

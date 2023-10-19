@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\Login.jpg" />
+    <None Remove="Images\NotFind.png" />
     <None Remove="Images\头像.jpg" />
   </ItemGroup>
 
@@ -36,7 +38,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\Login.jpg" />
+    <Resource Include="Images\NotFind.png" />
     <Resource Include="Images\头像.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TokenKey.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

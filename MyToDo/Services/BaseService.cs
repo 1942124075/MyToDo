@@ -1,5 +1,4 @@
-﻿using MyToDo.Entity;
-using MyToDo.Library.Entity;
+﻿using MyToDo.Library.Entity;
 using MyToDo.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -72,12 +71,16 @@ namespace MyToDo.Services
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<TEntity>> GetListAsync(QueryParameter parameter)
+        public async Task<ApiResponse<PageList<TEntity>>> GetListAsync(QueryParameter parameter)
         {
             BaseRequest request = new BaseRequest();
             request.Method = RestSharp.Method.Get;
-            request.Route = $"api/{route}/GetAll?PageIndex={parameter.PageIndex}&PageSize={parameter.PageSize}&Search={parameter.Search}";
-            var result = await client.ExecuteAsync<TEntity>(request);
+            request.Route = $"api/{route}/GetAll?" +
+                $"PageIndex={parameter.PageIndex}" +
+                $"&PageSize={parameter.PageSize}" +
+                $"&Search={parameter.Search}" +
+                $"&Status={parameter.Status}";
+            var result = await client.ExecuteAsync<PageList<TEntity>>(request);
             return result;
         }
         /// <summary>

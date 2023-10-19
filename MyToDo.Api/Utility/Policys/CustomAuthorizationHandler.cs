@@ -26,7 +26,6 @@ namespace MyToDo.Api.Utility.Policys
         /// <exception cref="NotImplementedException"></exception>
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomAuthorizationRequirement requirement)
         {
-            logger.LogInformation("策略验算");
             if (context.User.Claims.Count() == 0)
             {
                 return Task.CompletedTask;//验正不通过

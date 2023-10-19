@@ -15,6 +15,7 @@ namespace MyToDo.Api.Controllers
     [ApiController]
     [Route("api/[controller]/[action]")]
     [ApiExplorerSettings(IgnoreApi = false,GroupName = nameof(ApiVersion.V1))]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "adminPolicy")]
     public class BlockItemController : ControllerBase
     {
         private readonly IBlockItemService blockItemService;
@@ -34,6 +35,7 @@ namespace MyToDo.Api.Controllers
         /// <param name="blockItem"></param>
         /// <returns></returns>
         [HttpPost]
+        
         public async Task<ApiResponse<BlockItemDto>> Add([FromForm] BlockItemDto blockItem)
         {
             return await blockItemService.AddAsync(blockItem);
@@ -64,7 +66,6 @@ namespace MyToDo.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Policy = "adminPolicy")]
         public async Task<ApiResponse<BlockItemDto>> GetSingle(int id)
         {
             return await blockItemService.GetSingleAsync(id);

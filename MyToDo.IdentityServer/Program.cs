@@ -13,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(option =>
 {
+    //注册全局异常处理
     option.Filters.Add<CustomAsyncExceptionFilterAttribute>();
+    //注册全局日志
+    option.Filters.Add<CustomAsyncActionFilterAttribute>();
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -47,9 +50,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    
 }
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

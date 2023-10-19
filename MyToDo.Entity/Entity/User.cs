@@ -1,4 +1,5 @@
 ﻿using MyToDo.Library.BaseModes;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,45 +16,54 @@ namespace MyToDo.Library.Entity
         private int age;
         private string sex;
         private string role;
+        private string token;
+        /// <summary>
+        /// 令牌
+        /// </summary>
+        public string? Token
+        {
+            get { return token; }
+            set { token = value; }
+        }
         /// <summary>
         /// 角色
         /// </summary>
-        public string Role
+        public string? Role
         {
             get { return role; }
-            set { role = value; }
+            set { role = value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 性别
         /// </summary>
-        public string Sex
+        public string? Sex
         {
             get { return sex; }
-            set { sex = value; }
+            set { sex = value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 年龄
         /// </summary>
-        public int Age
+        public int? Age
         {
             get { return age; }
-            set { age = value; }
+            set { age = (int)value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 最后登录时间
         /// </summary>
-        public DateTime LastLoginDate
+        public DateTime? LastLoginDate
         {
             get { return lastLoginDate; }
-            set { lastLoginDate = value; }
+            set { lastLoginDate = (DateTime)value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 密码
         /// </summary>
-        public string PassWord
+        public string Password
         {
             get { return passWord; }
-            set { passWord = value; }
+            set { passWord = value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 用户名
@@ -61,7 +71,7 @@ namespace MyToDo.Library.Entity
         public string UserName
         {
             get { return userName; }
-            set { userName = value; }
+            set { userName = value; RaisePropertyChanged(); }
         }
 
     }

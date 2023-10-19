@@ -1,0 +1,8 @@
+﻿{
+  "Token": {
+    "ExpirationDate": 1440,
+    "Audience": "http://8.134.142.102:8080/",
+    "Issuer": "http://8.134.142.102:8090/",
+    "SecurityKey": "哦你也我应该还写完了有哦你也我应该还写完了有asdasdasddadsadasdadasd哦你也我应该还写完了有"
+  }
+}

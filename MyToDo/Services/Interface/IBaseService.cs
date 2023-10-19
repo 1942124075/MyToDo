@@ -42,6 +42,6 @@ namespace MyToDo.Services.Interface
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        Task<ApiResponse<TEntity>> GetListAsync(QueryParameter parameter);
+        Task<ApiResponse<PageList<TEntity>>> GetListAsync(QueryParameter parameter);
     }
 }

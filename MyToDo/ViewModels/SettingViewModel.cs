@@ -2,6 +2,7 @@
 using MyToDo.Library.Modes;
 using MyToDo.StaticInfo;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Regions;
 using System;
 using System.Collections.Generic;
@@ -9,18 +10,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace MyToDo.ViewModels
 {
-    public class SettingViewModel
+    public class SettingViewModel : NavigationViewModel
     {
         private readonly IRegionManager regionManager;
 
-        public SettingViewModel(IRegionManager regionManager)
+        public SettingViewModel(IRegionManager regionManager,IEventAggregator eventAggregator) : base(eventAggregator)
         {
             SettingListItems = new ObservableCollection<MenuItemDto>();
             SettingChangeItemCommand = new DelegateCommand<MenuItemDto>(SettingChangeItem);
-            CreateSettingList();
             this.regionManager = regionManager;
         }
 
@@ -34,6 +35,12 @@ namespace MyToDo.ViewModels
         public ObservableCollection<MenuItemDto> SettingListItems { get; set; }
 
         public DelegateCommand<MenuItemDto> SettingChangeItemCommand {  get; set; }
+
+        public override void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            CreateSettingList();
+            regionManager.Regions[StaticBase.SettingNavigateName].RequestNavigate(SettingListItems[0].MenuNameSpace);
+        }
 
         void CreateSettingList()
         {

@@ -39,7 +39,8 @@ namespace MyToDo.IdentityServer.Seivices
                 new Claim(ClaimTypes.Role,user.Role),
                 new Claim("LastLoginDate",user.LastLoginDate.ToString()),
                 new Claim("Age",user.Age.ToString()),
-                new Claim("Sex",user.Sex.ToString())
+                new Claim("Sex",user.Sex.ToString()),
+                new Claim(ClaimTypes.Sid,user.Id.ToString())
             };
             //设置key
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.SecurityKey));
@@ -50,7 +51,8 @@ namespace MyToDo.IdentityServer.Seivices
                 issuer:jwtOptions.Value.Issuer,
                 audience:jwtOptions.Value.Audience,
                 claims:claims,
-                expires:DateTime.Now.AddMinutes(5),
+                expires:DateTime.Now.AddMinutes(jwtOptions.Value.ExpirationDate),
+                notBefore:DateTime.Now,
                 signingCredentials:signing
                 );
             //生成token

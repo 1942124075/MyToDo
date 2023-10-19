@@ -93,7 +93,7 @@ namespace MyToDo.Api.Services
             {
                 var repository = unitOfWork.GetRepository<Memo>();
                 var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex, pageSize: query.PageSize,
-                    predicate: e => string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Equals(query.Search));
+                    predicate: e => string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Contains(query.Search));
                 PageList<MemoDto> pageList = new PageList<MemoDto>();
                 pageList.PageIndex = query.PageIndex;
                 pageList.PageSize = query.PageSize;

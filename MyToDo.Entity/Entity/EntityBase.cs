@@ -1,6 +1,8 @@
-﻿namespace MyToDo.Library.Entity
+﻿using Prism.Mvvm;
+
+namespace MyToDo.Library.Entity
 {
-    public class EntityBase
+    public class EntityBase : BindableBase
     {
         private int id;
         private DateTime? createDate;
@@ -12,7 +14,7 @@
         public DateTime? ModifyDate
         {
             get { return modifyDate; }
-            set { modifyDate = value; }
+            set { modifyDate = value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 创建时间
@@ -20,7 +22,7 @@
         public DateTime? CreateDate
         {
             get { return createDate; }
-            set { createDate = value; }
+            set { createDate = value; RaisePropertyChanged(); }
         }
         /// <summary>
         /// 编号
@@ -28,7 +30,7 @@
         public int Id
         {
             get { return id; }
-            set { id = value; }
+            set { id = value; RaisePropertyChanged(); }
         }
     }
 }

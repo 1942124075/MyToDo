@@ -70,12 +70,12 @@ namespace MyToDo.Library.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 10, 15, 23, 20, 787, DateTimeKind.Local).AddTicks(8789));
+                        .HasDefaultValue(new DateTime(2023, 10, 14, 1, 38, 38, 186, DateTimeKind.Local).AddTicks(3461));
 
                     b.Property<DateTime?>("ModifyDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 10, 15, 23, 20, 787, DateTimeKind.Local).AddTicks(9070));
+                        .HasDefaultValue(new DateTime(2023, 10, 14, 1, 38, 38, 186, DateTimeKind.Local).AddTicks(3713));
 
                     b.Property<string>("Title")
                         .HasMaxLength(50)
@@ -177,12 +177,12 @@ namespace MyToDo.Library.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 10, 15, 23, 20, 788, DateTimeKind.Local).AddTicks(6690));
+                        .HasDefaultValue(new DateTime(2023, 10, 14, 1, 38, 38, 187, DateTimeKind.Local).AddTicks(1359));
 
                     b.Property<DateTime?>("ModifyDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 10, 15, 23, 20, 788, DateTimeKind.Local).AddTicks(6922));
+                        .HasDefaultValue(new DateTime(2023, 10, 14, 1, 38, 38, 187, DateTimeKind.Local).AddTicks(1564));
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -218,7 +218,7 @@ namespace MyToDo.Library.Migrations
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PassWord")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -227,6 +227,10 @@ namespace MyToDo.Library.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

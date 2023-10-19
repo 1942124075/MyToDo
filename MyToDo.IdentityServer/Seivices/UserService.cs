@@ -30,7 +30,7 @@ namespace MyToDo.IdentityServer.Seivices
             {
                 return new ApiResponse("用户名和密码不能为空");
             }
-            User user = await unitOfWork.GetRepository<User>().GetFirstOrDefaultAsync(predicate:e => username.Equals(e.UserName) && password.Equals(e.PassWord));
+            User user = await unitOfWork.GetRepository<User>().GetFirstOrDefaultAsync(predicate:e => username.Equals(e.UserName) && password.Equals(e.Password));
             if (user == null)
             {
                 return new ApiResponse("用户名或密码错误!");
@@ -49,9 +49,14 @@ namespace MyToDo.IdentityServer.Seivices
             {
                 return new ApiResponse("用户信息不能为空");
             }
-            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.PassWord))
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
             {
                 return new ApiResponse("用户名和密码不能为空");
+            }
+            User findUser = unitOfWork.GetRepository<User>().GetFirstOrDefault(predicate: e => e.UserName.Equals(user.UserName));
+            if (findUser != null)
+            {
+                return new ApiResponse("注册失败,该用户名已存在!");
             }
             await unitOfWork.GetRepository<User>().InsertAsync(user);
             if (await unitOfWork.SaveChangesAsync() > 0)

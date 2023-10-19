@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using MyToDo.Api.Exceptions;
 using MyToDo.Api.Services;
 using MyToDo.Api.Services.Interfaces;
 using MyToDo.Api.Utility.Policys;
@@ -22,7 +23,6 @@ var builder = WebApplication.CreateBuilder(args);
 var logger = LogManager.Setup().LoadConfigurationFromFile("Config/NLog.Config").GetCurrentClassLogger();
 
 #region NLog配置
-builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
 builder.Host.UseNLog();
 #endregion
@@ -32,8 +32,12 @@ builder.Host.UseNLog();
 builder.Services.AddControllers(option =>
 {
     //注册全局异常处理
-    option.Filters.Add<CustomExceptionAttribute>();
+    option.Filters.Add<CustomAsyncExceptionFilterAttribute>();
+    //注册全局日志
+    option.Filters.Add<CustomAsyncActionFilterAttribute>();
 });
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //使用扩展方法配置swagger
@@ -78,46 +82,19 @@ builder.Services.AddOptions().Configure<Config>(e => configurationRoot.GetSectio
 JWTTokenOptions tokenOptions = new JWTTokenOptions();
 builder.Configuration.Bind("Token", tokenOptions);
 
-//添加授权鉴权
-builder.Services.AddAuthorization(option =>
-{
-    option.AddPolicy("adminPolicy", policy =>
-    {
-        policy.AddRequirements(new CustomAuthorizationRequirement());
-    });
-})//添加授权
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)//添加鉴权
-    .AddJwtBearer(option =>//配置鉴权逻辑
-    {
-        option.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = tokenOptions.Issuer,
-            ValidateAudience = true,
-            ValidAudience = tokenOptions.Audience,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecurityKey)),
-            AudienceValidator = (m,n,z) =>
-            {
-                return true;
-            },
-            LifetimeValidator = (notBefore,expires,securityToken,validationParameters) =>
-            {
-                return true;
-            }
-        };
-    });
+
+//添加授权
+builder.Services.AddAddAuthorizationEx();
+//添加鉴权
+builder.Services.AddAuthenticationEx(tokenOptions);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    //使用扩展方法配置swagger
-    app.AddSwaggerVersion();
-}
+
+app.UseSwagger();
+//使用扩展方法配置swagger
+app.AddSwaggerVersion();
+app.UseSwaggerUI();
 
 app.UseAuthentication();//启用鉴权
 app.UseAuthorization();//启用授权

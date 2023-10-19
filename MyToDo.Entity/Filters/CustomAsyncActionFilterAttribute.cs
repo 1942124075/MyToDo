@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace MyToDo.Library.Filters
 {
@@ -27,8 +28,9 @@ namespace MyToDo.Library.Filters
         {
             string? controller = context.RouteData.Values["controller"]?.ToString();
             string? action = context.RouteData.Values["action"]?.ToString();
-            logger.LogInformation($"{controller}--{action} 异步执行之前");
-            await next.Invoke();
+            string requestParam = JsonConvert.SerializeObject(context.ActionArguments);
+            logger.LogInformation($"{controller}--{action} 异步执行之前。  -----参数：{requestParam}");
+            var aw = await next.Invoke();
             logger.LogInformation($"{controller}--{action} 异步执行完成");
         }
     }
