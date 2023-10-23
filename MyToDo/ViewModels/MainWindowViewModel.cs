@@ -1,12 +1,14 @@
 ﻿using MyToDo.Common.Dialogs;
+using MyToDo.Common.Extensions;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
 using MyToDo.Services.Interface;
 using MyToDo.StaticInfo;
+using MyToDo.Views.Dialogs;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Regions;
-using Prism.Services.Dialogs;
 using System;
 using System.Collections.ObjectModel;
 
@@ -20,9 +22,21 @@ namespace MyToDo.ViewModels
         private readonly IDialogHostService dialogHostService;
         private IRegionNavigationJournal journal;
         private MenuItemDto currentMenu;
-        private User currentUser;
+        private UserDto currentUser;
+        private string userName;
 
-        public User CurrentUser
+        public string UserName
+        {
+            get { return userName; }
+            set { userName = value; RaisePropertyChanged(); }
+        }
+
+
+
+        /// <summary>
+        /// 当前用户
+        /// </summary>
+        public UserDto CurrentUser
         {
             get { return currentUser; }
             set { currentUser = value; RaisePropertyChanged(); }
@@ -43,17 +57,9 @@ namespace MyToDo.ViewModels
         /// </summary>
         public DelegateCommand<MenuItemDto> NavigateCommand { get; set; }
         /// <summary>
-        /// 返回上一步命令
+        /// 执行操作
         /// </summary>
-        public DelegateCommand BackCommand { get; set; }
-        /// <summary>
-        /// 返回下一步命令
-        /// </summary>
-        public DelegateCommand ForwardCommand { get; set; }
-        /// <summary>
-        /// 登录系统命令
-        /// </summary>
-        public DelegateCommand LoginCommand { get; set; }
+        public DelegateCommand<string> ExecuteCommand {  get; set; }
         /// <summary>
         /// 菜单列表
         /// </summary>
@@ -75,27 +81,65 @@ namespace MyToDo.ViewModels
         /// 
         /// </summary>
         /// <param name="regionManager"></param>
-        public MainWindowViewModel(IRegionManager regionManager,IDialogHostService dialogHostService )
+        public MainWindowViewModel(IRegionManager regionManager,IDialogHostService dialogHostService,IEventAggregator eventAggregator,
+            ITokenService tokenService)
         {
-            
+            MenuBars = new ObservableCollection<MenuItemDto>();
             this.regionManager = regionManager;
             this.dialogHostService = dialogHostService;
             NavigateCommand = new DelegateCommand<MenuItemDto>(Navigate);
-            BackCommand = new DelegateCommand(Back);
-            ForwardCommand = new DelegateCommand(Forward);
-            LoginCommand = new DelegateCommand(Login);
+            ExecuteCommand = new DelegateCommand<string>(Execute);
+            
+            
         }
         /// <summary>
-        /// 登录
+        /// 执行操作
         /// </summary>
-        private void Login()
+        /// <param name="option"></param>
+        private void Execute(string option)
         {
-            if (!IsNeedLogin)
+            switch (option) 
             {
-                dialogHostService.ShowDialog("LoginView", callback: (call) =>
-                {
+                case "Back"://返回上一步
+                    Back();
+                    break;
+                case "Forward"://返回下一步
+                    Forward();
+                    break;
+                case "LoginOut"://退出
+                    LoginOut();
+                    break;
+                case "UserCenter"://个人中心
+                    ShowUserCenter();
+                    break;
+            }
+        }
 
-                });
+        private async void ShowUserCenter()
+        {
+            var result = await dialogHostService.ShowDialog("UserCenterView",null);
+            if (result.Result == Prism.Services.Dialogs.ButtonResult.OK)
+            {
+                CurrentUser = StaticBase.CurrentUser;
+            }
+        }
+
+        /// <summary>
+        /// 登出
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        private async void LoginOut()
+        {
+            var result = await dialogHostService.ShowMessageBox("温馨提示","你确定要退出吗？");
+            if (result == Prism.Services.Dialogs.ButtonResult.OK)
+            {
+                CurrentUser = null;
+                if (StaticBase.CurrentUser != null)
+                {
+                    StaticBase.CurrentUser = null;
+                }
+                StaticBase.DeleteToken();
+                App.LoginOut(dialogHostService);
             }
         }
 
@@ -129,11 +173,6 @@ namespace MyToDo.ViewModels
             {
                 journal = callBack.Context.NavigationService.Journal;
             }); 
-        }
-
-        public MainWindowViewModel()
-        {
-            
         }
 
         /// <summary>
@@ -175,15 +214,15 @@ namespace MyToDo.ViewModels
         /// </summary>
         public void Configure()
         {
-            MenuBars = new ObservableCollection<MenuItemDto>();
             CreateLeftList();
-            if (StaticBase.CurrentUset != null)
+            if (StaticBase.CurrentUser != null)
             {
                 IsNeedLogin = false;
-                CurrentUser = StaticBase.CurrentUset;
+                UserName = StaticBase.CurrentUser.UserName;
             }
             CurrentMenu = MenuBars[0];
             regionManager.Regions[StaticBase.MenuNavigateName].RequestNavigate("Home");
         }
+
     }
 }

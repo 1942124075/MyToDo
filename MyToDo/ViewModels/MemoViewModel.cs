@@ -3,6 +3,7 @@ using MyToDo.Common.Extensions;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
 using MyToDo.Services.Interface;
+using MyToDo.StaticInfo;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -84,9 +85,7 @@ namespace MyToDo.ViewModels
             switch (option)
             {
                 case "Add":
-                    CurrentData = new MemoDto()
-                    {
-                    };
+                    CurrentData = new MemoDto();
                     IsRightDrawerOpen = true;
                     MemoTitle = "添加备忘录";
                     break;

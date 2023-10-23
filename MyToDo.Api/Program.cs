@@ -48,9 +48,7 @@ builder.AddSwaggerToken();
 
 //配置服务
 builder.Services.AddScoped<MyDbContext>()
-    .AddScoped<IBlockItemService, BlockItemService>()
     .AddScoped<IMemoService, MemoService>()
-    .AddScoped<IMenuItemService, MenuItemService>()
     .AddScoped<IToDoService, ToDoService>()
     .AddScoped<IAuthorizationHandler, CustomAuthorizationHandler>()//策略验证
     ;
@@ -58,8 +56,6 @@ builder.Services.AddScoped<MyDbContext>()
 //配置仓储
 builder.Services.AddCustomRepository<ToDo,ToDoRepository>()
     .AddCustomRepository<Memo, MemoRepository>()
-    .AddCustomRepository<BlockItem, BlockItemRepository>()
-    .AddCustomRepository<MenuItem, MenuItemRepository>()
     .AddScoped<IUnitOfWork ,UnitOfWork<MyDbContext>>();
 
 //配置自动映射
@@ -69,6 +65,7 @@ var mapperConfig = new MapperConfiguration(config =>
     config.CreateMap<Memo, MemoDto>().ReverseMap();
     config.CreateMap<BlockItem, BlockItemDto>().ReverseMap();
     config.CreateMap<MenuItem, MenuItemDto>().ReverseMap();
+    config.CreateMap<User, UserDto>().ReverseMap();
 });
 builder.Services.AddSingleton(mapperConfig.CreateMapper());
 

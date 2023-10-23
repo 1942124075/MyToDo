@@ -19,7 +19,7 @@ namespace MyToDo.Api.Services
         /// </summary>
         /// <param name="unitOfWork"></param>
         /// <param name="mapper"></param>
-        public MemoService(IUnitOfWork unitOfWork,IMapper mapper)
+        public MemoService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -27,17 +27,16 @@ namespace MyToDo.Api.Services
         /// <summary>
         /// 添加
         /// </summary>
-        /// <param name="modeDto"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<MemoDto>> AddAsync(MemoDto modeDto)
+        public async Task<ApiResponse<MemoDto>> AddAsync(Memo mode)
         {
-            if (modeDto == null)
-                return new ApiResponse<MemoDto>("添加失败！");
-            try
+            if (mode != null && mode.User != null)
             {
-                var mode = mapper.Map<Memo>(modeDto);
                 mode.CreateDate = DateTime.Now;
                 mode.ModifyDate = DateTime.Now;
+                mode.UserId = mode.User.Id;
+                mode.User = null;
                 await unitOfWork.GetRepository<Memo>().InsertAsync(mode);
                 if (await unitOfWork.SaveChangesAsync() > 0)
                 {
@@ -47,11 +46,10 @@ namespace MyToDo.Api.Services
                 {
                     return new ApiResponse<MemoDto>("添加失败！");
                 }
-
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse<MemoDto>(ex.Message);
+                return new ApiResponse<MemoDto>("添加失败！");
             }
         }
         /// <summary>
@@ -63,118 +61,86 @@ namespace MyToDo.Api.Services
         {
             if (id < 1)
                 return new ApiResponse("删除失败！");
-            try
+            var repository = unitOfWork.GetRepository<Memo>();
+            var blockItem = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
+            repository.Delete(blockItem);
+            if (await unitOfWork.SaveChangesAsync() > 0)
             {
-                var repository = unitOfWork.GetRepository<Memo>();
-                var blockItem = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
-                repository.Delete(blockItem);
-                if (await unitOfWork.SaveChangesAsync() > 0)
-                {
-                    return new ApiResponse(true, blockItem, "删除成功！");
-                }
-                else
-                {
-                    return new ApiResponse("删除失败！");
-                }
-
+                return new ApiResponse(true, blockItem, "删除成功！");
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse("删除失败！");
             }
         }
         /// <summary>
         /// 获取所有
         /// </summary>
         /// <returns></returns>
-        public async Task<ApiResponse<PageList<MemoDto>>> GetAllAsync(QueryParameter query)
+        public async Task<ApiResponse<PageList<MemoDto>>> GetAllAsync(QueryParameter query, User user)
         {
-            try
+            var repository = unitOfWork.GetRepository<Memo>();
+            var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex, pageSize: query.PageSize,
+                predicate: e => e.UserId == user.Id && (string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Contains(query.Search)));
+            PageList<MemoDto> pageList = new PageList<MemoDto>();
+            pageList.PageIndex = query.PageIndex;
+            pageList.PageSize = query.PageSize;
+            foreach (var item in results.Items)
             {
-                var repository = unitOfWork.GetRepository<Memo>();
-                var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex, pageSize: query.PageSize,
-                    predicate: e => string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Contains(query.Search));
-                PageList<MemoDto> pageList = new PageList<MemoDto>();
-                pageList.PageIndex = query.PageIndex;
-                pageList.PageSize = query.PageSize;
-                foreach (var item in results.Items)
-                {
-                    pageList.Lists.Add(mapper.Map<MemoDto>(item));
-                }
-                if (results != null)
-                {
-                    return new ApiResponse<PageList<MemoDto>>(true, pageList, "获取成功！");
-                }
-                else
-                {
-                    return new ApiResponse<PageList<MemoDto>>("获取失败！");
-                }
-
+                pageList.Lists.Add(mapper.Map<MemoDto>(item));
             }
-            catch (Exception ex)
+            if (results != null)
             {
-                return new ApiResponse<PageList<MemoDto>>(ex.Message);
+                return new ApiResponse<PageList<MemoDto>>(true, pageList, "获取成功！");
+            }
+            else
+            {
+                return new ApiResponse<PageList<MemoDto>>("获取失败！");
             }
         }
         /// <summary>
         /// 获取单个
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<MemoDto>> GetSingleAsync(int id)
+        public async Task<ApiResponse<MemoDto>> GetSingleAsync(int id, User user)
         {
             if (id < 0)
                 return new ApiResponse<MemoDto>("获取失败！");
-            try
+            var repository = unitOfWork.GetRepository<Memo>();
+            var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.UserId == user.Id && e.Id == id);
+            if (result != null)
             {
-                var repository = unitOfWork.GetRepository<Memo>();
-                var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
-                if (result != null)
-                {
-                    return new ApiResponse<MemoDto>(true, mapper.Map<MemoDto>(result), "获取成功！") ;
-                }
-                else
-                {
-                    return new ApiResponse<MemoDto>("获取失败！");
-                }
-
+                return new ApiResponse<MemoDto>(true, mapper.Map<MemoDto>(result), "获取成功！");
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse<MemoDto>(ex.Message);
+                return new ApiResponse<MemoDto>("获取失败！");
             }
         }
         /// <summary>
         /// 更新
         /// </summary>
-        /// <param name="modeDto"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<MemoDto>> UpdateAsync(MemoDto modeDto)
+        public async Task<ApiResponse<MemoDto>> UpdateAsync(Memo mode)
         {
-            if (modeDto == null)
+            if (mode == null)
                 return new ApiResponse<MemoDto>("修改失败！");
-            try
+            var repository = unitOfWork.GetRepository<Memo>();
+            var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == mode.Id);
+            result.Title = string.IsNullOrEmpty(mode.Title) ? result.Title : mode.Title;
+            result.Content = string.IsNullOrEmpty(mode.Content) ? result.Content : mode.Content;
+            result.ModifyDate = DateTime.Now;
+            repository.Update(result);
+            if (await unitOfWork.SaveChangesAsync() > 0)
             {
-                var mode = mapper.Map<Memo>(modeDto);
-                var repository = unitOfWork.GetRepository<Memo>();
-                var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == mode.Id);
-                result.Title = string.IsNullOrEmpty(mode.Title) ? result.Title : mode.Title;
-                result.Content = string.IsNullOrEmpty(mode.Content) ? result.Content : mode.Content;
-                result.ModifyDate = DateTime.Now;
-                repository.Update(result);
-                if (await unitOfWork.SaveChangesAsync() > 0)
-                {
-                    return new ApiResponse<MemoDto>(true, mapper.Map<MemoDto>(result), "修改成功！");
-                }
-                else
-                {
-                    return new ApiResponse<MemoDto>("修改失败！");
-                }
-
+                return new ApiResponse<MemoDto>(true, mapper.Map<MemoDto>(result), "修改成功！");
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse<MemoDto> (ex.Message);
+                return new ApiResponse<MemoDto>("修改失败！");
             }
         }
     }

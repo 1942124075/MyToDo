@@ -1,6 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 using MyToDo.Services.Interface;
+using MyToDo.StaticInfo;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,7 +25,7 @@ namespace MyToDo.Services
         /// <param name="token"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ApiResponse<User>> DecryptToken(string token)
+        public async Task<ApiResponse<UserDto>> DecryptToken(string token)
         {
             try
             {
@@ -47,32 +49,32 @@ namespace MyToDo.Services
                     DateTimeOffset nbfOffset = DateTimeOffset.FromUnixTimeSeconds(nbf);
                     DateTime expDateTime = expTimeOffset.DateTime.AddHours(8);
                     DateTime nbfDateTime = nbfOffset.DateTime.AddHours(8);
-                    if (DateTime.Now < nbfDateTime)
-                    {
-                        return new ApiResponse<User>("令牌无效");
-                    }
+                    //if (DateTime.Now < nbfDateTime)
+                    //{
+                    //    return new ApiResponse<User>("令牌无效");
+                    //}
                     if (DateTime.Now > expDateTime)
                     {
-                        return new ApiResponse<User>("令牌无效");
+                        return new ApiResponse<UserDto>("令牌无效");
                     }
-                    User user = new User();
-                    user.Token = token;
+
+                    UserDto user = new UserDto();
+                    StaticBase.Token = token;
                     user.UserName = result.Claims[ClaimTypes.Name].ToString();
                     user.Role = result.Claims[ClaimTypes.Role].ToString();
                     user.Age = int.Parse(result.Claims["Age"].ToString());
                     user.Id = int.Parse(result.Claims[ClaimTypes.Sid].ToString());
                     user.Sex = result.Claims["Sex"].ToString();
-                    user.LastLoginDate = DateTime.Parse(result.Claims["LastLoginDate"].ToString());
-                    return new ApiResponse<User>(true, user);
+                    return new ApiResponse<UserDto>(true, user);
                 }
                 else
                 {
-                    return new ApiResponse<User>("解密失败");
+                    return new ApiResponse<UserDto>("解密失败");
                 }
             }
             catch (Exception)
             {
-                return new ApiResponse<User>("解密失败");
+                return new ApiResponse<UserDto>("解密失败");
             }
         }
     }

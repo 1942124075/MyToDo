@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyToDo.Api.Services.Interfaces;
+using MyToDo.Api.Utility.JWT;
 using MyToDo.Api.Utility.Swagger;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
@@ -18,13 +20,17 @@ namespace MyToDo.Api.Controllers
     public class MemoController : ControllerBase
     {
         private readonly IMemoService iService;
+        private readonly IMapper mapper;
+
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="iService"></param>
-        public MemoController(IMemoService iService)
+        /// <param name="mapper"></param>
+        public MemoController(IMemoService iService,IMapper mapper)
         {
             this.iService = iService;
+            this.mapper = mapper;
         }
         /// <summary>
         /// 添加
@@ -34,7 +40,10 @@ namespace MyToDo.Api.Controllers
         [HttpPost]
         public async Task<ApiResponse<MemoDto>> Add([FromBody] MemoDto mode)
         {
-            return await iService.AddAsync(mode);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            Memo memo = mapper.Map<Memo>(mode);
+            memo.User = user;
+            return await iService.AddAsync(memo);
         }
         /// <summary>
         /// 删除
@@ -54,7 +63,8 @@ namespace MyToDo.Api.Controllers
         [HttpGet]
         public async Task<ApiResponse<PageList<MemoDto>>> GetAll([FromQuery] QueryParameter query)
         {
-            return await iService.GetAllAsync(query);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            return await iService.GetAllAsync(query, user);
         }
         /// <summary>
         /// 获取单个
@@ -64,7 +74,8 @@ namespace MyToDo.Api.Controllers
         [HttpGet]
         public async Task<ApiResponse<MemoDto>> GetSingle(int id)
         {
-            return await iService.GetSingleAsync(id);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            return await iService.GetSingleAsync(id, user);
         }
         /// <summary>
         /// 修改
@@ -74,7 +85,10 @@ namespace MyToDo.Api.Controllers
         [HttpPut]
         public async Task<ApiResponse<MemoDto>> Update(MemoDto mode)
         {
-            return await iService.UpdateAsync(mode);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            Memo memo = mapper.Map<Memo>(mode);
+            memo.User = user;
+            return await iService.UpdateAsync(memo);
         }
     }
 }

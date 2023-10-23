@@ -1,4 +1,5 @@
 ﻿using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace MyToDo.Services.Interface
         Task<ApiResponse> LoginAsync(string username, string password);
         Task<ApiResponse> LogoutAsync(int id);
         Task<ApiResponse> RegisterAsync(User entity);
+        Task<ApiResponse> UpdateAsync(UserDto entity);
     }
 }

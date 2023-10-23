@@ -123,7 +123,7 @@ namespace MyToDo.ViewModels
                     var userinfo = await tokenService.DecryptToken(result.Result.ToString());
                     if (userinfo.Status)
                     {
-                        StaticBase.CurrentUset = userinfo.Result;
+                        StaticBase.CurrentUser = userinfo.Result;
                         RequestClose(new DialogResult( ButtonResult.OK));
                     }
                     else

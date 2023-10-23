@@ -3,6 +3,7 @@ using MyToDo.Common.Extensions;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
 using MyToDo.Services.Interface;
+using MyToDo.StaticInfo;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;

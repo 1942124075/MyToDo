@@ -31,42 +31,78 @@ namespace MyToDo
             return Container.Resolve<MainWindow>();
         }
         /// <summary>
-        /// 重写初始化完成方法,调用运行时配置接口
-        /// </summary>
-        protected async override void OnInitialized()
+        /// 退出登录
+        /// </summary> b
+        /// <param name="dialogService"></param>
+        public static void LoginOut(IDialogService dialogService)
         {
-            if (StaticBase.CurrentUset == null)
+            Current.MainWindow.Hide();
+            dialogService.ShowDialog("LoginView", callback: call =>
             {
-                var tokenService = Container.Resolve<ITokenService>();
-                string token = StaticBase.ReadToken();
-                if (string.IsNullOrWhiteSpace(token))
+                if (call.Result == ButtonResult.OK)
                 {
-                    LoginSystem();
+                    var runConfig = App.Current.MainWindow.DataContext as IRunConfigureService;
+                    if (runConfig != null)
+                        runConfig.Configure();
+                    Current.MainWindow.Show();
+                    return;
                 }
                 else
                 {
-                    var userinfo = await tokenService.DecryptToken(token);
-                    if (userinfo.Status)
+                    App.Current.Shutdown();
+                }
+            });
+
+        }
+
+        /// <summary>
+        /// 重写初始化完成方法,调用运行时配置接口
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            IDialogService dialogService = Container.Resolve<IDialogService>();
+            string token = StaticBase.ReadToken();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                dialogService.ShowDialog("LoginView", callback: call =>
+                {
+                    if (call.Result != ButtonResult.OK)
                     {
-                        StaticBase.CurrentUset = userinfo.Result;
+                        App.Current.Shutdown();
                     }
-                    else
+                });
+            }
+            else
+            {
+                var tokenService = Container.Resolve<ITokenService>();
+                var userinfo = tokenService.DecryptToken(token).Result;
+                if (userinfo.Status)
+                {
+                    StaticBase.CurrentUser = userinfo.Result;
+                }
+                else
+                {
+                    dialogService.ShowDialog("LoginView", callback: call =>
                     {
-                        LoginSystem();
-                    }
+                        if (call.Result != ButtonResult.OK)
+                        {
+                            App.Current.Shutdown();
+                        }
+                    });
                 }
             }
+            base.OnInitialized();
             var runConfig = App.Current.MainWindow.DataContext as IRunConfigureService;
             if (runConfig != null)
                 runConfig.Configure();
+            
             IEventAggregator eventAggregator = Container.Resolve<IEventAggregator>();
             eventAggregator.SendMessage("登录成功");
-            base.OnInitialized();
+            
         }
 
-        private void LoginSystem()
+        private static void LoginSystem(IDialogService dialogService)
         {
-            IDialogService dialogService = Container.Resolve<IDialogService>();
             dialogService.ShowDialog("LoginView", callback: call =>
             {
                 if (call.Result == ButtonResult.OK)
@@ -100,6 +136,7 @@ namespace MyToDo
             containerRegistry.Register<ITokenService, TokenService>();
 
             containerRegistry.RegisterForNavigation<MessageBoxView, MessageBoxViewModel>();
+            containerRegistry.RegisterForNavigation<UserCenterView, UserCenterViewModel>();
             containerRegistry.RegisterDialog<LoginView, LoginViewModel>();
             containerRegistry.RegisterForNavigation<AddToDoView,AddToDoViewModel>();
             containerRegistry.RegisterForNavigation<AddMemoView, AddMemoViewModel>();

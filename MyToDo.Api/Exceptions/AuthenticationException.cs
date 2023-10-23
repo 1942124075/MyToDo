@@ -21,7 +21,9 @@ namespace MyToDo.Api.Exceptions
         /// <param name="tokenOptions"></param>
         public static IServiceCollection AddAuthenticationEx(this IServiceCollection services, JWTTokenOptions tokenOptions)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)//添加鉴权
+            if (tokenOptions != null && tokenOptions.SecurityKey != null)
+            {
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)//添加鉴权
             .AddJwtBearer(option =>//配置鉴权逻辑
             {
                 option.TokenValidationParameters = new TokenValidationParameters
@@ -54,6 +56,7 @@ namespace MyToDo.Api.Exceptions
                     }
                 };
             });
+            }
             return services;
         }
         /// <summary>

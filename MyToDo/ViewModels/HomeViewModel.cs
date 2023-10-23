@@ -1,6 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using MyToDo.Common.Dialogs;
 using MyToDo.Common.Extensions;
+using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
 using MyToDo.Services.Interface;
 using MyToDo.StaticInfo;
@@ -27,6 +28,7 @@ namespace MyToDo.ViewModels
         private readonly IRegionManager regionManager;
         private readonly IEventAggregator eventAggregator;
 
+
         public HomeViewModel(IDialogHostService dialogService, 
             IMemoService memoService,
             IToDoService toDoService,
@@ -40,6 +42,7 @@ namespace MyToDo.ViewModels
             ToDoCompltedCommand = new DelegateCommand<ToDoDto>(ToDoComplted);
             JumpMenuCommand = new DelegateCommand<BlockItemDto>(JumpMenu);
             CreateBlocks();
+
 
             this.dialogService = dialogService;
             this.memoService = memoService;
@@ -192,6 +195,14 @@ namespace MyToDo.ViewModels
         public ObservableCollection<BlockItemDto> Blocks { get; set; }
         private IRegionNavigationJournal journal;
         private SummaryDto summaryDto;
+        private string userName;
+
+        public string UserName
+        {
+            get { return userName; }
+            set { userName = value; RaisePropertyChanged(); }
+        }
+
 
         public SummaryDto MySummaryDto
         {
@@ -246,6 +257,7 @@ namespace MyToDo.ViewModels
         public override async void OnNavigatedTo(NavigationContext navigationContext)
         {
             SetLoading(true);
+            UserName = StaticBase.CurrentUser.UserName;
             base.OnNavigatedTo(navigationContext);
             await CreateContent();
             SetLoading(false);

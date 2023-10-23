@@ -30,7 +30,7 @@ namespace MyToDo.Services
             var request = new RestRequest();
             request.Method = baseRequest.Method;
             request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMTIzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJMYXN0TG9naW5EYXRlIjoiMjAyMy8xMC8xMCDmmJ_mnJ_kuowgODozMTo1MCIsIkFnZSI6IjMiLCJTZXgiOiIyIiwiZXhwIjoxNjk3MDM5Nzc1LCJpc3MiOiJ6enh4Y2N2dmRkc3NhYXF3d2UiLCJhdWQiOiJxd2VydHl1aW9wYXNkZmdocSJ9.4hUu79nKyEawPXLQXjrYnBVyn9aOIGHi10r6PkNzESk");
+            request.AddHeader("Authorization", $"Bearer {StaticBase.Token}");
             if (baseRequest.Parameter != null)
             {
                 request.AddBody(JsonConvert.SerializeObject(baseRequest.Parameter), contentType: ContentType.Json);
@@ -50,7 +50,7 @@ namespace MyToDo.Services
             var request = new RestRequest();
             request.Method = baseRequest.Method;
             request.AddHeader("Content-Type", baseRequest.ContentType);
-            request.AddHeader("Authorization", $"Bearer {StaticBase.CurrentUset.Token}" );
+            request.AddHeader("Authorization", $"Bearer {StaticBase.Token}" );
             //request.AddHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMTIzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJMYXN0TG9naW5EYXRlIjoiMjAyMy8xMC8xMCDmmJ_mnJ_kuowgODozMTo1MCIsIkFnZSI6IjMiLCJTZXgiOiIyIiwiZXhwIjoxNjk3MDM5Nzc1LCJpc3MiOiJ6enh4Y2N2dmRkc3NhYXF3d2UiLCJhdWQiOiJxd2VydHl1aW9wYXNkZmdocSJ9.4hUu79nKyEawPXLQXjrYnBVyn9aOIGHi10r6PkNzESk");
             if (baseRequest.Parameter != null)
             {

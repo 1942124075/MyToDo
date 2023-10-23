@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 
 namespace MyToDo.IdentityServer.Seivices.Interfaces
 {
@@ -18,5 +19,11 @@ namespace MyToDo.IdentityServer.Seivices.Interfaces
         /// <param name="user"></param>
         /// <returns></returns>
         Task<ApiResponse> RegisterAsync(User user);
+        /// <summary>
+        /// 修改用户信息
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        Task<ApiResponse> UpdateAsync(UserDto user);
     }
 }

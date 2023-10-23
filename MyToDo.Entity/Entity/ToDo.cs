@@ -1,10 +1,22 @@
-﻿namespace MyToDo.Library.Entity
+﻿using MyToDo.Library.Modes;
+
+namespace MyToDo.Library.Entity
 {
     public class ToDo : EntityBase
     {
         private int status;
         private string title;
         private string content;
+        private int userId;
+        public User? User { get; set; }
+        /// <summary>
+        /// 用户ID
+        /// </summary>
+        public int UserId
+        {
+            get { return userId; }
+            set { userId = value; }
+        }
 
         /// <summary>
         /// 状态

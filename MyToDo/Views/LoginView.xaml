@@ -68,6 +68,12 @@
                         <i:Interaction.Behaviors>
                             <pd:PasswordBehavior />
                         </i:Interaction.Behaviors>
+                        <PasswordBox.InputBindings>
+                            <KeyBinding
+                                Key="Enter"
+                                Command="{Binding ExecuteCommand}"
+                                CommandParameter="Login" />
+                        </PasswordBox.InputBindings>
                     </PasswordBox>
                     <Button
                         Width="300"
@@ -113,6 +119,7 @@
                         MaxLength="12"
                         Text="{Binding MyUser.UserName}" />
                     <PasswordBox
+                        x:Name="register"
                         Height="30"
                         Margin="10,10"
                         materialDesign:HintAssist.Hint="在这里输入你的密码"
@@ -121,6 +128,12 @@
                         <i:Interaction.Behaviors>
                             <pd:PasswordBehavior />
                         </i:Interaction.Behaviors>
+                        <PasswordBox.InputBindings>
+                            <KeyBinding
+                                Key="Enter"
+                                Command="{Binding ExecuteCommand}"
+                                CommandParameter="Register" />
+                        </PasswordBox.InputBindings>
                     </PasswordBox>
                     <Button
                         Width="300"

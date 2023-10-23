@@ -19,11 +19,21 @@ namespace MyToDo.Library.Modes
 		private int memoCount;
 		private ObservableCollection<ToDoDto> todoList;
 		private ObservableCollection<MemoDto> memoList;
+        private UserDto user;
 
-		/// <summary>
-		/// 备忘录列表
-		/// </summary>
-		public ObservableCollection<MemoDto> MemoList
+        /// <summary>
+        /// 所属用户
+        /// </summary>
+        public UserDto User
+        {
+            get { return user; }
+            set { user = value; }
+        }
+
+        /// <summary>
+        /// 备忘录列表
+        /// </summary>
+        public ObservableCollection<MemoDto> MemoList
         {
 			get { return memoList; }
 			set { memoList = value; RaisePropertyChanged(); }

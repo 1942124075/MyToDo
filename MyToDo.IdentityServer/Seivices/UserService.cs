@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using MyToDo.IdentityServer.Seivices.Interfaces;
 using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 
 namespace MyToDo.IdentityServer.Seivices
 {
@@ -62,6 +63,41 @@ namespace MyToDo.IdentityServer.Seivices
             if (await unitOfWork.SaveChangesAsync() > 0)
             {
                 return new ApiResponse(true, user);
+            }
+            else
+            {
+                return new ApiResponse("注册失败!");
+            }
+        }
+        /// <summary>
+        /// 修改用户信息
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public async Task<ApiResponse> UpdateAsync(UserDto user)
+        {
+            if (user == null)
+            {
+                return new ApiResponse("用户信息不能为空");
+            }
+            if (string.IsNullOrWhiteSpace(user.UserName))
+            {
+                return new ApiResponse("用户名不能为空");
+            }
+            User findUser = unitOfWork.GetRepository<User>().GetFirstOrDefault(predicate: e => e.Id == user.Id);
+            if (findUser == null)
+            {
+                return new ApiResponse("修改失败,用户不存在!");
+            }
+            findUser.UserName = user.UserName;
+            findUser.Age = user.Age;
+            findUser.Sex = user.Sex;
+            findUser.Role = user.Role;
+            findUser.ModifyDate = DateTime.Now;
+            unitOfWork.GetRepository<User>().Update(findUser);
+            if (await unitOfWork.SaveChangesAsync() > 0)
+            {
+                return new ApiResponse(true, findUser);
             }
             else
             {

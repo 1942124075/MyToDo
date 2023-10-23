@@ -19,7 +19,7 @@ namespace MyToDo.Api.Services
         /// </summary>
         /// <param name="unitOfWork"></param>
         /// <param name="mapper"></param>
-        public ToDoService(IUnitOfWork unitOfWork,IMapper mapper)
+        public ToDoService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
@@ -29,13 +29,13 @@ namespace MyToDo.Api.Services
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ApiResponse<SummaryDto>> GetSummarySaync()
+        public async Task<ApiResponse<SummaryDto>> GetSummarySaync(User user)
         {
             SummaryDto summary = new SummaryDto();
-            var memoList = await unitOfWork.GetRepository<Memo>().GetPagedListAsync(orderBy: e => e.OrderBy(i => i.Id), pageSize: int.MaxValue) ;
+            var memoList = await unitOfWork.GetRepository<Memo>().GetPagedListAsync(predicate: e => e.UserId == user.Id, orderBy: e => e.OrderBy(i => i.Id), pageSize: int.MaxValue);
             summary.MemoList = new ObservableCollection<MemoDto>(mapper.Map<List<MemoDto>>(memoList.Items));
             summary.MemoCount = summary.MemoList.Count;
-            var todoList = await unitOfWork.GetRepository<ToDo>().GetPagedListAsync(orderBy: e => e.OrderBy(i => i.Id),pageSize:int.MaxValue);
+            var todoList = await unitOfWork.GetRepository<ToDo>().GetPagedListAsync(predicate: e => e.UserId == user.Id, orderBy: e => e.OrderBy(i => i.Id), pageSize: int.MaxValue);
             summary.TodoList = new ObservableCollection<ToDoDto>(mapper.Map<List<ToDoDto>>(todoList.Items.Where(e => e.Status == 0)));
             summary.TodoFinshCount = todoList.Items.Count(e => e.Status == 1);
             summary.TodoCount = todoList.Items.Count;
@@ -46,17 +46,16 @@ namespace MyToDo.Api.Services
         /// <summary>
         /// 添加
         /// </summary>
-        /// <param name="modeDto"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<ToDoDto>> AddAsync(ToDoDto modeDto)
+        public async Task<ApiResponse<ToDoDto>> AddAsync(ToDo mode)
         {
-            if (modeDto == null)
-                return new ApiResponse<ToDoDto>("添加失败！");
-            try
+            if (mode != null && mode.User != null)
             {
-                var mode = mapper.Map<ToDo>(modeDto);
                 mode.CreateDate = DateTime.Now;
                 mode.ModifyDate = DateTime.Now;
+                mode.UserId = mode.User.Id;
+                mode.User = null;
                 await unitOfWork.GetRepository<ToDo>().InsertAsync(mode);
                 if (await unitOfWork.SaveChangesAsync() > 0)
                 {
@@ -66,12 +65,12 @@ namespace MyToDo.Api.Services
                 {
                     return new ApiResponse<ToDoDto>("添加失败！");
                 }
-
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse<ToDoDto>(ex.Message);
+                return new ApiResponse<ToDoDto>("添加失败！");
             }
+
         }
         /// <summary>
         /// 删除
@@ -82,124 +81,94 @@ namespace MyToDo.Api.Services
         {
             if (id < 1)
                 return new ApiResponse("删除失败！");
-            try
+            var repository = unitOfWork.GetRepository<ToDo>();
+            var blockItem = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
+            repository.Delete(blockItem);
+            if (await unitOfWork.SaveChangesAsync() > 0)
             {
-                var repository = unitOfWork.GetRepository<ToDo>();
-                var blockItem = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
-                repository.Delete(blockItem);
-                if (await unitOfWork.SaveChangesAsync() > 0)
-                {
-                    return new ApiResponse(true, blockItem, "删除成功！");
-                }
-                else
-                {
-                    return new ApiResponse("删除失败！");
-                }
-
+                return new ApiResponse(true, blockItem, "删除成功！");
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse(ex.Message);
+                return new ApiResponse("删除失败！");
             }
         }
         /// <summary>
         /// 获取所有
         /// </summary>
         /// <returns></returns>
-        public async Task<ApiResponse<PageList<ToDoDto>>> GetAllAsync(QueryParameter query)
+        public async Task<ApiResponse<PageList<ToDoDto>>> GetAllAsync(QueryParameter query, User user)
         {
-            try
+            var repository = unitOfWork.GetRepository<ToDo>();
+            var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex, pageSize: query.PageSize,
+                predicate: e => e.UserId == user.Id && (string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Contains(query.Search))
+                && (query.Status == null ? true : query.Status.Equals(e.Status)));
+            PageList<ToDoDto> pageList = new PageList<ToDoDto>();
+            pageList.PageIndex = query.PageIndex;
+            pageList.PageSize = query.PageSize;
+            foreach (var item in results.Items)
             {
-                var repository = unitOfWork.GetRepository<ToDo>();
-                var results = await repository.GetPagedListAsync(pageIndex: query.PageIndex,pageSize: query.PageSize,
-                    predicate:e => (string.IsNullOrWhiteSpace(query.Search) ? true : e.Title.Contains(query.Search))
-                    && (query.Status == null ? true : query.Status.Equals(e.Status)));
-                PageList<ToDoDto> pageList = new PageList<ToDoDto>();
-                pageList.PageIndex = query.PageIndex;
-                pageList.PageSize = query.PageSize;
-                foreach (var item in results.Items)
-                {
-                    pageList.Lists.Add(mapper.Map<ToDoDto>(item));
-                }
-                if (results != null)
-                {
-                    return new ApiResponse<PageList<ToDoDto>>(true, pageList, "获取成功！");
-                }
-                else
-                {
-                    return new ApiResponse<PageList<ToDoDto>>("获取失败！");
-                }
+                pageList.Lists.Add(mapper.Map<ToDoDto>(item));
+            }
+            if (results != null)
+            {
+                return new ApiResponse<PageList<ToDoDto>>(true, pageList, "获取成功！");
+            }
+            else
+            {
+                return new ApiResponse<PageList<ToDoDto>>("获取失败！");
+            }
 
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<PageList<ToDoDto>>(ex.Message);
-            }
         }
         /// <summary>
         /// 获取单个
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<ToDoDto>> GetSingleAsync(int id)
+        public async Task<ApiResponse<ToDoDto>> GetSingleAsync(int id, User user)
         {
             if (id < 0)
                 return new ApiResponse<ToDoDto>("获取失败！");
-            try
+            var repository = unitOfWork.GetRepository<ToDo>();
+            var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.UserId == user.Id && e.Id == id);
+            if (result != null)
             {
-                var repository = unitOfWork.GetRepository<ToDo>();
-                var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == id);
-                if (result != null)
-                {
-                    return new ApiResponse<ToDoDto>(true, mapper.Map<ToDoDto>(result), "获取成功！");
-                }
-                else
-                {
-                    return new ApiResponse<ToDoDto>("获取失败！");
-                }
-
+                return new ApiResponse<ToDoDto>(true, mapper.Map<ToDoDto>(result), "获取成功！");
             }
-            catch (Exception ex)
+            else
             {
-                return new ApiResponse<ToDoDto>(ex.Message);
+                return new ApiResponse<ToDoDto>("获取失败！");
             }
         }
 
-        
+
 
         /// <summary>
         /// 更新
         /// </summary>
-        /// <param name="modeDto"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<ToDoDto>> UpdateAsync(ToDoDto modeDto)
+        public async Task<ApiResponse<ToDoDto>> UpdateAsync(ToDo mode)
         {
-            if (modeDto == null)
+            if (mode == null)
                 return new ApiResponse<ToDoDto>("修改失败！");
-            try
+            var repository = unitOfWork.GetRepository<ToDo>();
+            var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == mode.Id);
+            result.Title = string.IsNullOrEmpty(mode.Title) ? result.Title : mode.Title;
+            result.Content = string.IsNullOrEmpty(mode.Content) ? result.Content : mode.Content;
+            result.ModifyDate = DateTime.Now;
+            result.Status = mode.Status;
+            repository.Update(result);
+            if (await unitOfWork.SaveChangesAsync() > 0)
             {
-                var mode = mapper.Map<ToDo>(modeDto);
-                var repository = unitOfWork.GetRepository<ToDo>();
-                var result = await repository.GetFirstOrDefaultAsync(predicate: e => e.Id == mode.Id);
-                result.Title = string.IsNullOrEmpty(mode.Title) ? result.Title : mode.Title;
-                result.Content = string.IsNullOrEmpty(mode.Content) ? result.Content : mode.Content;
-                result.ModifyDate = DateTime.Now;
-                result.Status = modeDto.Status;
-                repository.Update(result);
-                if (await unitOfWork.SaveChangesAsync() > 0)
-                {
-                    return new ApiResponse<ToDoDto>(true, mapper.Map<ToDoDto>(result), "修改成功！");
-                }
-                else
-                {
-                    return new ApiResponse<ToDoDto>("修改失败！");
-                }
+                return new ApiResponse<ToDoDto>(true, mapper.Map<ToDoDto>(result), "修改成功！");
+            }
+            else
+            {
+                return new ApiResponse<ToDoDto>("修改失败！");
+            }
 
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<ToDoDto>(ex.Message);
-            }
         }
     }
 }

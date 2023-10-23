@@ -13,7 +13,6 @@ namespace MyToDo.Library.Modes
         private string title;
         private string content;
 
-
         /// <summary>
         /// 内容
         /// </summary>

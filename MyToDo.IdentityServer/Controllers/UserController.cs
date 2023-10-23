@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyToDo.IdentityServer.Seivices.Interfaces;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Filters;
+using MyToDo.Library.Modes;
 
 namespace MyToDo.IdentityServer.Controllers
 {
@@ -42,6 +43,16 @@ namespace MyToDo.IdentityServer.Controllers
         public async Task<ApiResponse> RegisterAsync([FromBody]User user)
         {
             return await userSerivce.RegisterAsync(user);
+        }
+        /// <summary>
+        /// 修改用户信息
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ApiResponse> UpdateAsync([FromBody] UserDto user)
+        {
+            return await userSerivce.UpdateAsync(user);
         }
     }
 }

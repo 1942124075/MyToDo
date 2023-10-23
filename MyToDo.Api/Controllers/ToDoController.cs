@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyToDo.Api.Services.Interfaces;
+using MyToDo.Api.Utility.JWT;
 using MyToDo.Api.Utility.Swagger;
 using MyToDo.Library.Entity;
 using MyToDo.Library.Modes;
+using System.Security.Claims;
 
 namespace MyToDo.Api.Controllers
 {
@@ -18,13 +21,17 @@ namespace MyToDo.Api.Controllers
     public class ToDoController : ControllerBase
     {
         private readonly IToDoService iService;
+        private readonly IMapper mapper;
+
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="iService"></param>
-        public ToDoController(IToDoService iService)
+        /// <param name="mapper"></param>
+        public ToDoController(IToDoService iService,IMapper mapper)
         {
             this.iService = iService;
+            this.mapper = mapper;
         }
         /// <summary>
         /// 获取数据汇总
@@ -33,7 +40,8 @@ namespace MyToDo.Api.Controllers
         [HttpGet]
         public async Task<ApiResponse<SummaryDto>> GetSummarySaync()
         {
-            return await iService.GetSummarySaync();
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            return await iService.GetSummarySaync(user);
         }
 
         /// <summary>
@@ -44,7 +52,10 @@ namespace MyToDo.Api.Controllers
         [HttpPost]
         public async Task<ApiResponse<ToDoDto>> Add([FromBody] ToDoDto mode)
         {
-            return await iService.AddAsync(mode);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            ToDo toDo = mapper.Map<ToDo>(mode);
+            toDo.User = user;
+            return await iService.AddAsync(toDo);
         }
         /// <summary>
         /// 删除
@@ -64,7 +75,8 @@ namespace MyToDo.Api.Controllers
         [HttpGet]
         public async Task<ApiResponse<PageList<ToDoDto>>> GetAll([FromQuery]QueryParameter query)
         {
-            return await iService.GetAllAsync(query);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            return await iService.GetAllAsync(query, user);
         }
         /// <summary>
         /// 获取单个
@@ -74,7 +86,8 @@ namespace MyToDo.Api.Controllers
         [HttpGet]
         public async Task<ApiResponse<ToDoDto>> GetSingle(int id)
         {
-            return await iService.GetSingleAsync(id);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            return await iService.GetSingleAsync(id, user);
         }
         /// <summary>
         /// 修改
@@ -84,7 +97,10 @@ namespace MyToDo.Api.Controllers
         [HttpPut]
         public async Task<ApiResponse<ToDoDto>> Update(ToDoDto mode)
         {
-            return await iService.UpdateAsync(mode);
+            User user = JWTTool.ClaimsToUser(this.User.Claims);
+            ToDo toDo = mapper.Map<ToDo>(mode);
+            toDo.User = user;
+            return await iService.UpdateAsync(toDo);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MyToDo.Library.Entity
         /// <summary>
         /// 令牌
         /// </summary>
-        public string? Token
+        public string Token
         {
             get { return token; }
             set { token = value; }
@@ -28,7 +28,7 @@ namespace MyToDo.Library.Entity
         /// <summary>
         /// 角色
         /// </summary>
-        public string? Role
+        public string Role
         {
             get { return role; }
             set { role = value; RaisePropertyChanged(); }
@@ -36,7 +36,7 @@ namespace MyToDo.Library.Entity
         /// <summary>
         /// 性别
         /// </summary>
-        public string? Sex
+        public string Sex
         {
             get { return sex; }
             set { sex = value; RaisePropertyChanged(); }
@@ -44,7 +44,7 @@ namespace MyToDo.Library.Entity
         /// <summary>
         /// 年龄
         /// </summary>
-        public int? Age
+        public int Age
         {
             get { return age; }
             set { age = (int)value; RaisePropertyChanged(); }
@@ -52,7 +52,7 @@ namespace MyToDo.Library.Entity
         /// <summary>
         /// 最后登录时间
         /// </summary>
-        public DateTime? LastLoginDate
+        public DateTime LastLoginDate
         {
             get { return lastLoginDate; }
             set { lastLoginDate = (DateTime)value; RaisePropertyChanged(); }

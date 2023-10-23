@@ -1,4 +1,5 @@
 ﻿using MyToDo.Library.Entity;
+using MyToDo.Library.Modes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,6 @@ namespace MyToDo.Services.Interface
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        Task<ApiResponse<User>> DecryptToken(string token);
+        Task<ApiResponse<UserDto>> DecryptToken(string token);
     }
 }
